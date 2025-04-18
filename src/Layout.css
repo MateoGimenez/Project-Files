@@ -1,0 +1,61 @@
+/* Estilo general del header */
+.main-header {
+    width: 100%;
+    background: linear-gradient(90deg, #f0f0f0, #e0e0e0);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  /* Contenedor del nav */
+  .nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  /* Lista de navegación */
+  .nav-list {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+  }
+  
+  /* Ítems individuales */
+  .nav-item {
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Enlace estilo botón */
+  .nav-button {
+    padding: 0.5rem 1rem;
+    background-color: #4a90e2;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  .nav-button:hover {
+    background-color: #3b7fd1;
+  }
+  
+  .nav-button:active {
+    background-color: #336fc0;
+  }
+  
+  /* Contenido principal debajo del header */
+  .content {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  

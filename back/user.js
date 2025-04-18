@@ -5,7 +5,7 @@ import { validarJwt, validarRol } from './validaciones.js'
 
 const users = express.Router()
 
-users.get('/users'  , async(req , res)=>{
+users.get('/users', validarJwt ,validarRol , async(req , res)=>{
     try {
         const [result] = await db.execute('SELECT * FROM users')
         if(result.length <= 0){

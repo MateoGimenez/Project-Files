@@ -1,10 +1,38 @@
-import { Menu } from "./components/Menu.jsx";
-// import { AuthStatus } from "./Auth";
+import { Link, Outlet } from 'react-router-dom'
+import { AuthRol } from './components/Auth.jsx'
 import "./Layout.css"
 export const Layout = () => {
   return (
     <>
-      <Menu></Menu>
+      <header className="main-header">
+        <nav className="nav-container">
+          <ul className="nav-list">
+
+            <li className='nav-item'>
+              {/* <Link to="/" className="nav-link">Registros</Link> */}
+              <p>registros</p>
+            </li>
+
+            <li className="nav-item">
+              <Link to="/perfil" className="nav-button">
+                <p>Imagen del perfil</p>
+              </Link>
+            </li>
+
+            <AuthRol superusuario={1}>
+              <li className="nav-item">
+                <Link to="/usuarios" className="nav-button">
+                <p>Imagen de admin</p>
+                </Link>
+              </li>
+            </AuthRol>
+          </ul>
+        </nav>
+      </header>
+
+      <main className="content">
+        <Outlet />
+      </main>
     </>
   );
 };
