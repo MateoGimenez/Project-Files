@@ -8,9 +8,8 @@ export const Layout = () => {
         <nav className="nav-container">
           <ul className="nav-list">
 
-            <li className='nav-item'>
-              {/* <Link to="/" className="nav-link">Registros</Link> */}
-              <p>registros</p>
+            <li className='nav-button'>
+              <Link to="/" className="nav-link">Registros</Link>
             </li>
 
             <li className="nav-item">

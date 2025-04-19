@@ -1,0 +1,63 @@
+.perfil-contenedor {
+    max-width: 400px;
+    margin: 60px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .perfil-titulo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .perfil-datos {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 15px;
+  }
+  
+  .etiqueta {
+    font-weight: bold;
+  }
+  
+  .rol {
+    display: inline-block;
+    padding: 5px 12px;
+    margin: 5px auto;
+    font-size: 14px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  
+  .rol-admin {
+    background-color: #e0f0ff;
+    color: #0077cc;
+  }
+  
+  .rol-usuario {
+    background-color: #e6ffe6;
+    color: #229944;
+  }
+  
+  .boton-salir {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #e74c3c;
+    border: none;
+    color: white;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .boton-salir:hover {
+    background-color: #c0392b;
+  }
+  

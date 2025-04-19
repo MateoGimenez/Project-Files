@@ -23,4 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 .env
-
+.xls
+BASE CAPITAL MARZO 25.xls

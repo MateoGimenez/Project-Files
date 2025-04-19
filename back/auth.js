@@ -98,6 +98,7 @@ authRouter.post(
     // Enviar JWT al cliente
     res.send({
       nombre: users[0].nombre,
+      apellido : users[0].apellido,
       rol: users[0].rol,
       id: users[0].idusers,
       token,

@@ -1,5 +1,6 @@
 import { AuthRol, useAuth } from "./Auth.jsx";
 import { useNavigate } from "react-router-dom";
+import "./PerfilPage.css"; // Importamos los estilos
 
 export const PerfilPage = () => {
   const { sesion, logout } = useAuth();
@@ -8,19 +9,26 @@ export const PerfilPage = () => {
   const handleLogout = () => {
     logout(() => navigate("/"));
   };
+
   return (
-    <>
-    <div className="Contenedor-Perfil">
-      <h1 className="Perfil-Usuario">Perfil de Usuario 👤</h1>
-      <p className="Perfil-Nombre">Nombre: {sesion?.nombre}</p>
-      <AuthRol superusuario={1}>
-        <p className="Admin">Es administrador</p>
+    <div className="perfil-contenedor">
+      <h1 className="perfil-titulo">Perfil de Usuario 👤</h1>
+
+      <div className="perfil-datos">
+        <p><span className="etiqueta">Nombre:</span> {sesion?.nombre} {sesion?.apellido}</p>
+      </div>
+
+      <AuthRol rolRequerido={1}>
+        <p className="rol rol-admin">Rol: Administrador</p>
       </AuthRol>
-      <AuthRol superusuario={0} >
-        <p className="Usuario">Es usuario</p>
+
+      <AuthRol rolRequerido={2}>
+        <p className="rol rol-usuario">Rol: Usuario</p>
       </AuthRol>
-      <button onClick={handleLogout} className="Boton-Salir">Salir</button>
+
+      <button onClick={handleLogout} className="boton-salir">
+        Cerrar Sesión
+      </button>
     </div>
-    </>
   );
 };
