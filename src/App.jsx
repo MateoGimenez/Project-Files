@@ -4,28 +4,17 @@ import { PerfilPage } from "./components/PerfilPage.jsx"
 import { LoginPage } from "./components/Login.jsx";
 import { SinRuta } from "./components/SinRuta.jsx";
 import { AuthPage } from "./components/Auth.jsx";
+import { TablaExcel } from "./components/excel.jsx";
 import "./app.css"
 
 function App() {
   return (
     <>
       <Routes>
-      <Route
-        path="/"
-        element={
-          <AuthPage>
-            <Layout />
-          </AuthPage>
-        }
-      >
-        <Route
-          index
-          element={<PerfilPage />}
-        />
-        <Route
-          path="perfil"
-          element={<PerfilPage />}
-        />
+      <Route path="/" element={<AuthPage> <Layout /> </AuthPage>}>
+        <Route index element={<PerfilPage />} />
+        <Route path="perfil" element={<PerfilPage />} />
+        <Route path="Registros" element={<TablaExcel/>}></Route>
         <Route path="*" element={<SinRuta />} />
       </Route>
 

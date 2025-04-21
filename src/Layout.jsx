@@ -9,7 +9,7 @@ export const Layout = () => {
           <ul className="nav-list">
 
             <li className='nav-button'>
-              <Link to="/" className="nav-link">Registros</Link>
+              <Link to="/Registros" className="nav-link">Registros</Link>
             </li>
 
             <li className="nav-item">

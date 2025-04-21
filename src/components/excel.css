@@ -1,0 +1,101 @@
+.excel-container {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.excel-title {
+  text-align: center;
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.buscador {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.buscador input {
+  padding: 10px;
+  width: 300px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.buscador button {
+  padding: 10px 20px;
+  background-color: #4caf50;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.buscador button:hover {
+  background-color: #43a047;
+}
+
+.excel-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.excel-table thead {
+  background-color: #4caf50;
+  color: white;
+}
+
+.excel-table th,
+.excel-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.excel-table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.excel-table tbody tr:hover {
+  background-color: #e0f2f1;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.pagination button {
+  padding: 8px 16px;
+  background-color: #1976d2;
+  border: none;
+  color: white;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.pagination button:disabled {
+  background-color: #90caf9;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: 16px;
+  color: #333;
+}
