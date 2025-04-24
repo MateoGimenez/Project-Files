@@ -3,31 +3,35 @@ import "./excel.css";
 
 export const TablaExcel = () => {
   const [datos, setDatos] = useState([]);
-  const [busqueda, setBusqueda] = useState("");  // Variable para almacenar la búsqueda
-  const [textoBusqueda, setTextoBusqueda] = useState(""); // Estado para el texto de búsqueda
-  const [reempadronado, setReempadronado] = useState("");  // Estado para filtro de reempadronado
+  const [busqueda, setBusqueda] = useState(""); // Para enviar al backend
+  const [textoBusqueda, setTextoBusqueda] = useState(""); // Control del input
+  const [reempadronado, setReempadronado] = useState("");
+  const [pagina, setPagina] = useState(1);
+  const [totalPaginas, setTotalPaginas] = useState(1);
 
-  // Función para obtener los datos desde el backend
+  // Traer datos del backend
   const obtenerDatos = async () => {
     try {
       const res = await fetch(
-        `http://localhost:3000/api/excel/leer-excel?busqueda=${busqueda}&reempadronado=${reempadronado}`
+        `http://localhost:3000/leer-excel?busqueda=${busqueda}&reempadronado=${reempadronado}&page=${pagina}&limit=10`
       );
       const data = await res.json();
       setDatos(data.datos);
+      setTotalPaginas(data.totalPages);
     } catch (error) {
       console.error("Error al obtener datos del Excel:", error);
     }
   };
 
-  // useEffect para cargar los datos al iniciar o cuando cambien los filtros
+  // Efecto para traer los datos al montar y cuando cambian filtros/paginación
   useEffect(() => {
-    obtenerDatos();  // Llamamos a la función cada vez que cambien los filtros
-  }, [busqueda, reempadronado]);  // Dependemos de los filtros para obtener los datos
+    obtenerDatos();
+  }, [busqueda, reempadronado, pagina]);
 
-  // Función que maneja la acción de buscar
+  // Buscar al hacer clic
   const handleBuscar = () => {
-    setBusqueda(textoBusqueda); // Actualiza el estado de busqueda con el texto introducido
+    setBusqueda(textoBusqueda);
+    setPagina(1); // Reiniciar página al buscar
   };
 
   return (
@@ -37,17 +41,24 @@ export const TablaExcel = () => {
       <div className="buscador">
         <input
           type="text"
+          className="buscador-input"
           value={textoBusqueda}
           onChange={(e) => setTextoBusqueda(e.target.value)}
-          placeholder="Buscar por nombre, DNI, correo..."
+          placeholder="Buscar por nombre, DNI..."
         />
-        <button onClick={handleBuscar}>Buscar</button>
+        <button className="buscador-button" onClick={handleBuscar}>
+          Buscar
+        </button>
       </div>
 
       <div className="filtros">
         <select
+          className="filtros-select"
           value={reempadronado}
-          onChange={(e) => setReempadronado(e.target.value)}
+          onChange={(e) => {
+            setReempadronado(e.target.value);
+            setPagina(1); // Reiniciar página al cambiar filtro
+          }}
         >
           <option value="">Todos</option>
           <option value="SI">Reempadronado</option>
@@ -58,37 +69,49 @@ export const TablaExcel = () => {
       <table className="excel-table">
         <thead>
           <tr>
-            <th>DNI</th>
-            <th>Apellido y Nombre</th>
-            <th>Correo</th>
-            <th>Fecha de Nac</th>
-            <th>Edad</th>
-            <th>Trabajo</th>
-            <th>Parentesco</th>
-            <th>Reempadronado</th>
+            <th className="excel-table-header">DNI</th>
+            <th className="excel-table-header">Apellido y Nombre</th>
+            <th className="excel-table-header">Reempadronado</th>
           </tr>
         </thead>
         <tbody>
           {datos.length > 0 ? (
             datos.map((fila, i) => (
-              <tr key={i}>
-                <td>{fila["DNI"]}</td>
-                <td>{fila["Apelido y Nombre"]}</td>
-                <td>{fila[" 15 - Correo Electronico "]}</td>
-                <td>{fila["18 - Fecha de Nac"]}</td>
-                <td>{fila["19 - Edad"]}</td>
-                <td>{fila["Su trabajo es"]}</td>
-                <td>{fila["7 - 7 - Parentesco"]}</td>
-                <td>{fila["3 - Reempadronado"]}</td>
+              <tr key={i} className="excel-table-row">
+                <td className="excel-table-cell">{fila["DNI"] || "-"}</td>
+                <td className="excel-table-cell">{fila["Apelido y Nombre"] || "-"}</td>
+                <td className="excel-table-cell">{fila["3 - Reempadronado"] || "-"}</td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="8">No se encontraron datos.</td>
+              <td colSpan="3" className="excel-table-no-data">
+                No se encontraron datos.
+              </td>
             </tr>
           )}
         </tbody>
       </table>
+
+      <div className="pagination">
+        <button
+          className="pagination-button"
+          onClick={() => setPagina((prev) => Math.max(prev - 1, 1))}
+          disabled={pagina === 1}
+        >
+          Anterior
+        </button>
+        <span className="pagination-info">
+          Página {pagina} de {totalPaginas}
+        </span>
+        <button
+          className="pagination-button"
+          onClick={() => setPagina((prev) => Math.min(prev + 1, totalPaginas))}
+          disabled={pagina === totalPaginas}
+        >
+          Siguiente
+        </button>
+      </div>
     </div>
   );
 };

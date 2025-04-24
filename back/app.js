@@ -16,7 +16,7 @@ authConfig()
 app.use('/', login)
 app.use('/', users)
 
-app.use('/api/excel' , excelRouter)
+app.use('/' , excelRouter)
 
 
 app.listen(PORT , () => {
