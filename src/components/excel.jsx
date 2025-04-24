@@ -3,39 +3,36 @@ import "./excel.css";
 
 export const TablaExcel = () => {
   const [datos, setDatos] = useState([]);
-  const [pagina, setPagina] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [limite, setLimite] = useState(100);
-  const [busqueda, setBusqueda] = useState("");
-  const [textoBusqueda, setTextoBusqueda] = useState("");
+  const [busqueda, setBusqueda] = useState("");  // Variable para almacenar la búsqueda
+  const [textoBusqueda, setTextoBusqueda] = useState(""); // Estado para el texto de búsqueda
+  const [reempadronado, setReempadronado] = useState("");  // Estado para filtro de reempadronado
 
-  const totalPaginas = Math.ceil(total / limite);
-
-  const obtenerDatos = async (paginaActual) => {
+  // Función para obtener los datos desde el backend
+  const obtenerDatos = async () => {
     try {
       const res = await fetch(
-        `http://localhost:3000/api/excel/leer-excel?pagina=${paginaActual}&limite=${limite}&busqueda=${busqueda}`
+        `http://localhost:3000/api/excel/leer-excel?busqueda=${busqueda}&reempadronado=${reempadronado}`
       );
       const data = await res.json();
       setDatos(data.datos);
-      setTotal(data.total);
     } catch (error) {
       console.error("Error al obtener datos del Excel:", error);
     }
   };
 
+  // useEffect para cargar los datos al iniciar o cuando cambien los filtros
   useEffect(() => {
-    obtenerDatos(pagina);
-  }, [pagina, busqueda]); // se actualiza cuando cambia la página o la búsqueda
+    obtenerDatos();  // Llamamos a la función cada vez que cambien los filtros
+  }, [busqueda, reempadronado]);  // Dependemos de los filtros para obtener los datos
 
+  // Función que maneja la acción de buscar
   const handleBuscar = () => {
-    setPagina(1); // Reinicia a la primera página
-    setBusqueda(textoBusqueda);
+    setBusqueda(textoBusqueda); // Actualiza el estado de busqueda con el texto introducido
   };
 
   return (
     <div className="excel-container">
-      <h2 className="excel-title">📊 Datos del Excel (Página {pagina})</h2>
+      <h2 className="excel-title">📊 Datos del Excel</h2>
 
       <div className="buscador">
         <input
@@ -45,6 +42,17 @@ export const TablaExcel = () => {
           placeholder="Buscar por nombre, DNI, correo..."
         />
         <button onClick={handleBuscar}>Buscar</button>
+      </div>
+
+      <div className="filtros">
+        <select
+          value={reempadronado}
+          onChange={(e) => setReempadronado(e.target.value)}
+        >
+          <option value="">Todos</option>
+          <option value="SI">Reempadronado</option>
+          <option value="NO">No Reempadronado</option>
+        </select>
       </div>
 
       <table className="excel-table">
@@ -57,37 +65,30 @@ export const TablaExcel = () => {
             <th>Edad</th>
             <th>Trabajo</th>
             <th>Parentesco</th>
+            <th>Reempadronado</th>
           </tr>
         </thead>
         <tbody>
-          {datos.map((fila, i) => (
-            <tr key={i}>
-              <td>{fila["DNI"]}</td>
-              <td>{fila["Apelido y Nombre"]}</td>
-              <td>{fila[" 15 - Correo Electronico "]}</td>
-              <td>{fila["18 - Fecha de Nac"]}</td>
-              <td>{fila["19 - Edad"]}</td>
-              <td>{fila["Su trabajo es"]}</td>
-              <td>{fila["7 - 7 - Parentesco"]}</td>
+          {datos.length > 0 ? (
+            datos.map((fila, i) => (
+              <tr key={i}>
+                <td>{fila["DNI"]}</td>
+                <td>{fila["Apelido y Nombre"]}</td>
+                <td>{fila[" 15 - Correo Electronico "]}</td>
+                <td>{fila["18 - Fecha de Nac"]}</td>
+                <td>{fila["19 - Edad"]}</td>
+                <td>{fila["Su trabajo es"]}</td>
+                <td>{fila["7 - 7 - Parentesco"]}</td>
+                <td>{fila["3 - Reempadronado"]}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="8">No se encontraron datos.</td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
-
-      <div className="pagination">
-        <button disabled={pagina === 1} onClick={() => setPagina(pagina - 1)}>
-          Anterior
-        </button>
-        <span>
-          Página {pagina} de {totalPaginas}
-        </span>
-        <button
-          disabled={pagina === totalPaginas}
-          onClick={() => setPagina(pagina + 1)}
-        >
-          Siguiente
-        </button>
-      </div>
     </div>
   );
 };
