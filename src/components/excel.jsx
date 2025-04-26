@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
+import { Modal } from "./Modal";
 import "./excel.css";
 
 export const TablaExcel = () => {
   const [datos, setDatos] = useState([]);
-  const [busqueda, setBusqueda] = useState(""); // Para enviar al backend
-  const [textoBusqueda, setTextoBusqueda] = useState(""); // Control del input
+  const [busqueda, setBusqueda] = useState("");
+  const [textoBusqueda, setTextoBusqueda] = useState("");
   const [reempadronado, setReempadronado] = useState("");
   const [pagina, setPagina] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(1);
+  
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
 
-  // Traer datos del backend
   const obtenerDatos = async () => {
     try {
       const res = await fetch(
@@ -23,15 +26,23 @@ export const TablaExcel = () => {
     }
   };
 
-  // Efecto para traer los datos al montar y cuando cambian filtros/paginación
   useEffect(() => {
     obtenerDatos();
   }, [busqueda, reempadronado, pagina]);
 
-  // Buscar al hacer clic
   const handleBuscar = () => {
     setBusqueda(textoBusqueda);
-    setPagina(1); // Reiniciar página al buscar
+    setPagina(1);
+  };
+
+  const abrirModal = (usuario) => {
+    setUsuarioSeleccionado(usuario);
+    setModalAbierto(true);
+  };
+
+  const cerrarModal = () => {
+    setModalAbierto(false);
+    setUsuarioSeleccionado(null);
   };
 
   return (
@@ -57,7 +68,7 @@ export const TablaExcel = () => {
           value={reempadronado}
           onChange={(e) => {
             setReempadronado(e.target.value);
-            setPagina(1); // Reiniciar página al cambiar filtro
+            setPagina(1);
           }}
         >
           <option value="">Todos</option>
@@ -77,7 +88,7 @@ export const TablaExcel = () => {
         <tbody>
           {datos.length > 0 ? (
             datos.map((fila, i) => (
-              <tr key={i} className="excel-table-row">
+              <tr key={i} className="excel-table-row" onClick={() => abrirModal(fila)}>
                 <td className="excel-table-cell">{fila["DNI"] || "-"}</td>
                 <td className="excel-table-cell">{fila["Apelido y Nombre"] || "-"}</td>
                 <td className="excel-table-cell">{fila["3 - Reempadronado"] || "-"}</td>
@@ -112,6 +123,13 @@ export const TablaExcel = () => {
           Siguiente
         </button>
       </div>
+        
+      <Modal 
+      modalAbierto={modalAbierto} 
+      usuarioSeleccionado={usuarioSeleccionado}
+      cerrarModal={cerrarModal}
+      />
+      
     </div>
   );
 };

@@ -1,60 +1,64 @@
 import express from 'express';
 import xlsx from 'xlsx';
+import fs from 'fs'; // Para escribir el archivo
 
 const excelRouter = express.Router();
+let excelData = [];
 
-// Cargar el archivo Excel y extraer solo los campos necesarios
+// Función para cargar datos
 const cargarExcel = () => {
   try {
     const workbook = xlsx.readFile('./BASE CAPITAL MARZO 25.xls');
     const data = [];
 
-    // Iterar sobre todas las hojas del libro
     workbook.SheetNames.forEach(sheetName => {
       const sheet = workbook.Sheets[sheetName];
-      const sheetData = xlsx.utils.sheet_to_json(sheet, {
-        header: 1,
-        defval: ''
-      }).map(row => ({
-        DNI: row[0],
-        "Apelido y Nombre": row[1],
-        "3 - Reempadronado": row[2]
-      }));
-
-      data.push(...sheetData);
+      const sheetData = xlsx.utils.sheet_to_json(sheet, { defval: '' });
+      sheetData.forEach(row => data.push(row));
     });
 
-    return data; // Retornar los datos cargados
+    return data;
   } catch (error) {
     console.error('Error al leer el archivo Excel:', error);
     return [];
   }
 };
 
-// Cargar los datos cuando arranca el servidor
-const excelData = cargarExcel();
+// Función para guardar datos
+const guardarExcel = (data) => {
+  const ws = xlsx.utils.json_to_sheet(data);
+  const wb = xlsx.utils.book_new();
+  xlsx.utils.book_append_sheet(wb, ws, 'Datos');
+  xlsx.writeFile(wb, './BASE CAPITAL MARZO 25.xls');
+};
 
+// Cargar datos iniciales
+excelData = cargarExcel();
+
+// Ruta: Listar datos (ya existente)
 excelRouter.get('/leer-excel', (req, res) => {
   try {
     const dni = req.query.dni?.toString();
     const reempadronado = req.query.reempadronado?.toUpperCase();
     const busqueda = req.query.busqueda?.toLowerCase();
-    const page = parseInt(req.query.page) || 1; // Número de página
-    const limit = parseInt(req.query.limit) || 10; // Límites por página
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
 
     let filtrado = excelData;
 
-    // Filtrar por DNI
     if (dni) {
       filtrado = filtrado.filter(fila => fila["DNI"]?.toString() === dni);
     }
 
-    // Filtrar por Reempadronado
     if (reempadronado) {
-      filtrado = filtrado.filter(fila => fila["3 - Reempadronado"]?.toUpperCase() === reempadronado);
+      filtrado = filtrado.filter(fila => {
+        const valor = (fila["3 - Reempadronado"] || "").toUpperCase();
+        if (reempadronado === "SI") return valor === "SI";
+        if (reempadronado === "NO") return valor !== "SI";
+        return true;
+      });
     }
 
-    // Filtrar por búsqueda global
     if (busqueda) {
       filtrado = filtrado.filter(fila => {
         return (
@@ -64,23 +68,84 @@ excelRouter.get('/leer-excel', (req, res) => {
       });
     }
 
-    // Implementar paginación
     const total = filtrado.length;
     const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    const paginatedData = filtrado.slice(startIndex, endIndex);
+    const paginatedData = filtrado.slice(startIndex, startIndex + limit);
 
-    // Responder con los datos filtrados y paginados
     res.json({
       datos: paginatedData,
       total,
       page,
       totalPages: Math.ceil(total / limit)
     });
-
   } catch (error) {
     console.error("Error al procesar los datos:", error);
-    res.status(500).send({ error: 'Hubo un problema al procesar los datos del Excel' });
+    res.status(500).send({ error: 'Error interno del servidor' });
+  }
+});
+
+// Ruta: Obtener un usuario por DNI
+excelRouter.get('/leer-excel/:dni', (req, res) => {
+  try {
+    const dni = req.params.dni;
+    const usuario = excelData.find(fila => fila["DNI"]?.toString() === dni);
+
+    if (!usuario) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    res.json(usuario);
+  } catch (error) {
+    console.error("Error al buscar usuario:", error);
+    res.status(500).send({ error: 'Error interno del servidor' });
+  }
+});
+
+// Ruta: Crear un nuevo usuario
+excelRouter.post('/agregar-persona', (req, res) => {
+  try {
+    const nuevoUsuario = req.body;
+    excelData.push(nuevoUsuario);
+    guardarExcel(excelData);
+    res.status(201).json({ mensaje: "Usuario creado exitosamente" });
+  } catch (error) {
+    console.error("Error al crear usuario:", error);
+    res.status(500).send({ error: 'Error interno del servidor' });
+  }
+});
+
+// Ruta: Editar un usuario
+excelRouter.put('/editar-usuario/:dni', (req, res) => {
+  try {
+    const dni = req.params.dni;
+    const nuevosDatos = req.body;
+    const index = excelData.findIndex(fila => fila["DNI"]?.toString() === dni);
+
+    if (index === -1) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    excelData[index] = { ...excelData[index], ...nuevosDatos };
+    guardarExcel(excelData);
+
+    res.json({ mensaje: "Usuario actualizado exitosamente" });
+  } catch (error) {
+    console.error("Error al editar usuario:", error);
+    res.status(500).send({ error: 'Error interno del servidor' });
+  }
+});
+
+// Ruta: Eliminar un usuario
+excelRouter.delete('/eliminar-excel/:dni', (req, res) => {
+  try {
+    const dni = req.params.dni;
+    excelData = excelData.filter(fila => fila["DNI"]?.toString() !== dni);
+    guardarExcel(excelData);
+
+    res.json({ mensaje: "Usuario eliminado exitosamente" });
+  } catch (error) {
+    console.error("Error al eliminar usuario:", error);
+    res.status(500).send({ error: 'Error interno del servidor' });
   }
 });
 
