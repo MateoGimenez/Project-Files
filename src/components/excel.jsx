@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Modal } from "./Modal";
+import { ModalAgregarUsuario } from "./ModalAgregarUsuario";
 import "./excel.css";
 
 export const TablaExcel = () => {
@@ -9,8 +10,9 @@ export const TablaExcel = () => {
   const [reempadronado, setReempadronado] = useState("");
   const [pagina, setPagina] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(1);
-  
+
   const [modalAbierto, setModalAbierto] = useState(false);
+  const [modalAgregarAbierto, setModalAgregarAbierto] = useState(false);
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
 
   const obtenerDatos = async () => {
@@ -45,10 +47,41 @@ export const TablaExcel = () => {
     setUsuarioSeleccionado(null);
   };
 
+  const abrirModalAgregar = () => {
+    setModalAgregarAbierto(true);
+  };
+
+  const cerrarModalAgregar = () => {
+    setModalAgregarAbierto(false);
+  };
+
+  const guardarUsuario = (nuevoUsuario) => {
+    console.log("Nuevo usuario guardado:", nuevoUsuario);
+    obtenerDatos(); // Actualiza la tabla después de agregar
+  };
+
+  const borrarUsuario = async (usuario) => {
+    const confirmar = window.confirm(`¿Estás seguro que quieres eliminar a ${usuario["Apelido y Nombre"]}?`);
+    if (!confirmar) return;
+  
+    try {
+      await fetch(`http://localhost:3000/eliminar-excel/${usuario["DNI"]}`, {
+        method: 'DELETE'
+      });
+
+      obtenerDatos(); 
+      alert('Usuario eliminado correctamente.');
+    } catch (error) {
+      console.error("Error al eliminar el usuario:", error);
+      alert('Hubo un problema al intentar eliminar el usuario.');
+    }
+  };
+
   return (
     <div className="excel-container">
       <h2 className="excel-title">📊 Datos del Excel</h2>
 
+      {/* Buscador */}
       <div className="buscador">
         <input
           type="text"
@@ -62,6 +95,7 @@ export const TablaExcel = () => {
         </button>
       </div>
 
+      {/* Filtros */}
       <div className="filtros">
         <select
           className="filtros-select"
@@ -75,28 +109,51 @@ export const TablaExcel = () => {
           <option value="SI">Reempadronado</option>
           <option value="NO">No Reempadronado</option>
         </select>
+
+        <button className="agregar-button" onClick={abrirModalAgregar}>
+          Agregar
+        </button>
       </div>
 
+      {/* Tabla */}
       <table className="excel-table">
         <thead>
           <tr>
             <th className="excel-table-header">DNI</th>
             <th className="excel-table-header">Apellido y Nombre</th>
             <th className="excel-table-header">Reempadronado</th>
+            <th className="excel-table-header">Acciones</th>
           </tr>
         </thead>
         <tbody>
           {datos.length > 0 ? (
             datos.map((fila, i) => (
-              <tr key={i} className="excel-table-row" onClick={() => abrirModal(fila)}>
-                <td className="excel-table-cell">{fila["DNI"] || "-"}</td>
-                <td className="excel-table-cell">{fila["Apelido y Nombre"] || "-"}</td>
-                <td className="excel-table-cell">{fila["3 - Reempadronado"] || "-"}</td>
+              <tr key={i} className="excel-table-row">
+                <td className="excel-table-cell" onClick={() => abrirModal(fila)}>
+                  {fila["DNI"] || "-"}
+                </td>
+                <td className="excel-table-cell" onClick={() => abrirModal(fila)}>
+                  {fila["Apelido y Nombre"] || "-"}
+                </td>
+                <td className="excel-table-cell" onClick={() => abrirModal(fila)}>
+                  {fila["3 - Reempadronado"] || "-"}
+                </td>
+                <td className="excel-table-cell">
+                  <button
+                    className="eliminar-button"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Para que no abra el modal al borrar
+                      borrarUsuario(fila);
+                    }}
+                  >
+                    Eliminar
+                  </button>
+                </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="3" className="excel-table-no-data">
+              <td colSpan="4" className="excel-table-no-data">
                 No se encontraron datos.
               </td>
             </tr>
@@ -104,6 +161,7 @@ export const TablaExcel = () => {
         </tbody>
       </table>
 
+      {/* Paginación */}
       <div className="pagination">
         <button
           className="pagination-button"
@@ -123,13 +181,21 @@ export const TablaExcel = () => {
           Siguiente
         </button>
       </div>
-        
-      <Modal 
-      modalAbierto={modalAbierto} 
-      usuarioSeleccionado={usuarioSeleccionado}
-      cerrarModal={cerrarModal}
+
+      {/* Modales */}
+      <Modal
+        modalAbierto={modalAbierto}
+        usuarioSeleccionado={usuarioSeleccionado}
+        cerrarModal={cerrarModal}
       />
-      
+
+      <ModalAgregarUsuario
+        modalAbierto={modalAgregarAbierto}
+        cerrarModal={cerrarModalAgregar}
+        guardarUsuario={guardarUsuario}
+        usuariosExistentes={datos} 
+      />
+
     </div>
   );
 };
