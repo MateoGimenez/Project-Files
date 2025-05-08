@@ -1,4 +1,4 @@
-import { AuthRol, useAuth } from "./Auth.jsx";
+import { AuthRol, useAuth } from "../Auth/Auth.jsx";
 import { useNavigate } from "react-router-dom";
 import "./PerfilPage.css"; // Importamos los estilos
 

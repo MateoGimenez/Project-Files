@@ -1,8 +1,10 @@
 import { useState } from "react";
+import SelectHojas from "./service/SelectHojas";
 import './ModalAgregarUsuario.css';
 
 export const ModalAgregarUsuario = ({ modalAbierto, cerrarModal, guardarUsuario, usuariosExistentes }) => {
   const [nuevoUsuario, setNuevoUsuario] = useState({
+    "Hoja": "",
     "Nº": "",
     "Apellido y Nombre": "",
     "DNI": "",
@@ -60,6 +62,7 @@ export const ModalAgregarUsuario = ({ modalAbierto, cerrarModal, guardarUsuario,
 
   const limpiarFormulario = () => {
     setNuevoUsuario({
+      "Hoja" : "",
       "Nº": "",
       "Apellido y Nombre": "",
       "DNI": "",
@@ -131,7 +134,6 @@ export const ModalAgregarUsuario = ({ modalAbierto, cerrarModal, guardarUsuario,
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     if (name === "18 - Fecha de Nac") {
       const edadCalculada = calcularEdad(value);
       setNuevoUsuario(prev => ({
@@ -164,56 +166,75 @@ export const ModalAgregarUsuario = ({ modalAbierto, cerrarModal, guardarUsuario,
         ...prev,
         [name]: value,
       }));
+          // Si el campo "Hoja" cambia, actualiza también "2 - Control"
+      if (name === "Hoja") {
+        setNuevoUsuario((prev) => ({
+          ...prev,
+          [name]: value,
+          "6 - Programa": value // Actualiza el campo "6 - Programa" automáticamente
+        }));
+      } else {
+        setNuevoUsuario((prev) => ({
+          ...prev,
+          [name]: value
+        }));
+      }
+      
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    const payload = {
+      Hoja: nuevoUsuario["Hoja"],
+      datos: { ...nuevoUsuario }
+    };
+    
+    console.log("Payload enviado:", payload);
 
-    // Validación del DNI único
-    if (validarDNIUnico(nuevoUsuario.DNI)) {
-      setErrores((prev) => ({
-        ...prev,
-        DNI: "El DNI ingresado ya está registrado.",
-      }));
-      return;
-    }
 
     try {
-      // Realizamos el POST solo si la validación pasa
-      const response = await fetch('http://localhost:3000/agregar-persona', {  // Aquí iría la URL del endpoint de tu API
+      const response = await fetch('http://localhost:3000/agregar-persona-hoja', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(nuevoUsuario),
+        body: JSON.stringify(payload),
       });
-
-      if (response.ok) {
-        // Si la respuesta es exitosa, guardamos el nuevo usuario
-        guardarUsuario(nuevoUsuario);
-        cerrarModal();
-        limpiarFormulario();
-      } else {
-        // Si la respuesta no es exitosa, mostramos un mensaje de error
+      
+      if (!response.ok) {
         const errorData = await response.json();
-        alert(`Error al guardar el usuario: ${errorData.message}`);
+        console.error("Error en la solicitud:", errorData);
+        alert(`Error: ${errorData.error}`);
+        return;
       }
+  
+      const data = await response.json();
+      alert(data.mensaje);
+      cerrarModal()
+  
     } catch (error) {
-      // En caso de error en la solicitud
       console.error('Error al hacer el POST:', error);
-      alert('Ocurrió un error al guardar el usuario.');
     }
   };
-
+  
+  
   return (
     <div className="modal-overlay" onClick={cerrarModal}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <h2>Agregar Nuevo Usuario</h2>
 
         <form onSubmit={handleSubmit} className="modal-formulario">
+          
+          <div className="modal-form-group">
+            <label>Hoja:</label>
+            <SelectHojas 
+              valorSeleccionado={nuevoUsuario["Hoja"]} 
+              onChange={handleChange} 
+            />
+          </div>
 
-          {/* Campos */}
           <div className="modal-form-group">
             <label>Apellido y Nombre:</label>
             <input type="text" name="Apellido y Nombre" value={nuevoUsuario["Apellido y Nombre"]} onChange={handleChange} required />
@@ -231,7 +252,7 @@ export const ModalAgregarUsuario = ({ modalAbierto, cerrarModal, guardarUsuario,
 
           <div className="modal-form-group">
             <label>Reempadronado:</label>
-            <select name="3 - Reempadronado" value={nuevoUsuario["3 - Reempadronado"]} onChange={handleChange}>
+            <select name="3 - Reempadronado" value={nuevoUsuario["3 - Reempadronado"]} onChange={handleChange} >
               <option value="">Seleccione</option>
               <option value="SI">Sí</option>
               <option value="NO">No</option>
@@ -250,7 +271,7 @@ export const ModalAgregarUsuario = ({ modalAbierto, cerrarModal, guardarUsuario,
 
           <div className="modal-form-group">
             <label>Programa:</label>
-            <input type="text" name="6 - Programa" value={nuevoUsuario["6 - Programa"]} onChange={handleChange} />
+            <input type="text" name="6 - Programa" value={nuevoUsuario["6 - Programa"]} onChange={handleChange} disabled/>
           </div>
 
           <div className="modal-form-group">

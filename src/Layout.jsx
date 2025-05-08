@@ -1,5 +1,5 @@
 import { Link, Outlet } from 'react-router-dom'
-import { AuthRol } from './components/Auth.jsx'
+import { AuthRol } from './components/Auth/Auth.jsx'
 import "./Layout.css"
 export const Layout = () => {
   return (

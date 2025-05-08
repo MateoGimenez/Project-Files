@@ -1,10 +1,10 @@
 import { Route, Routes } from "react-router-dom";
 import { Layout } from "./Layout";
-import { PerfilPage } from "./components/PerfilPage.jsx"
-import { LoginPage } from "./components/Login.jsx";
+import { PerfilPage } from "./components/Profile/PerfilPage.jsx"
+import { LoginPage } from "./components/Auth/Login.jsx";
 import { SinRuta } from "./components/SinRuta.jsx";
-import { AuthPage } from "./components/Auth.jsx";
-import { TablaExcel } from "./components/excel.jsx";
+import { AuthPage } from "./components/Auth/Auth.jsx";
+import { TablaExcel } from "./components/TablaExcel/excel.jsx";
 import "./app.css"
 
 function App() {

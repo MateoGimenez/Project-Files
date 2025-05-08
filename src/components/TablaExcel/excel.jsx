@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Modal } from "./Modal";
-import { ModalAgregarUsuario } from "./ModalAgregarUsuario";
+import { Modal } from "../Modales/Modal";
+import { borrarUsuario } from "../../service/Getexcel";
+import { ModalAgregarUsuario } from "../Modales/ModalAgregarUsuario"
 import "./excel.css";
 
 export const TablaExcel = () => {
@@ -60,22 +61,10 @@ export const TablaExcel = () => {
     obtenerDatos(); // Actualiza la tabla después de agregar
   };
 
-  const borrarUsuario = async (usuario) => {
-    const confirmar = window.confirm(`¿Estás seguro que quieres eliminar a ${usuario["Apelido y Nombre"]}?`);
-    if (!confirmar) return;
-  
-    try {
-      await fetch(`http://localhost:3000/eliminar-excel/${usuario["DNI"]}`, {
-        method: 'DELETE'
-      });
-
-      obtenerDatos(); 
-      alert('Usuario eliminado correctamente.');
-    } catch (error) {
-      console.error("Error al eliminar el usuario:", error);
-      alert('Hubo un problema al intentar eliminar el usuario.');
-    }
-  };
+  const EliminarUsuarios = async(fila) =>{
+    await borrarUsuario(fila)
+    obtenerDatos()
+  }
 
   return (
     <div className="excel-container">
@@ -143,7 +132,7 @@ export const TablaExcel = () => {
                     className="eliminar-button"
                     onClick={(e) => {
                       e.stopPropagation(); // Para que no abra el modal al borrar
-                      borrarUsuario(fila);
+                      EliminarUsuarios(fila);
                     }}
                   >
                     Eliminar
